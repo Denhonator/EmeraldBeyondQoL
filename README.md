@@ -1,6 +1,7 @@
 # Emerald Beyond Utility Mod
 
 Requires something like MelonLoader to load the mod https://github.com/LavaGang/MelonLoader
+Then download the dll from the releases page on the right.
 
 - Speeds up various UI animations
 - Allows game to run when alt tabbed
