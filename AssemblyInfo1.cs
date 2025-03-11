@@ -2,5 +2,5 @@ using MelonLoader;
 using EmeraldBeyond; // The namespace containing your mod class.
 
 // typeof( <Your mod class.> )
-[assembly: MelonInfo(typeof(MyMod), "DOTween speed", "0.1", "Denhonator")]
+[assembly: MelonInfo(typeof(MyMod), "EB Speedrun Mod", "1.0", "Denhonator")]
 [assembly: MelonGame()]

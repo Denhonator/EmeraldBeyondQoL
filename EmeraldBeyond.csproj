@@ -9,49 +9,49 @@
 
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Dependencies\Il2CppAssemblyGenerator\0Harmony.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppInterop.Common">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\Il2CppInterop.Common.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\Il2CppInterop.Common.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppInterop.Generator">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\Il2CppInterop.Generator.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\Il2CppInterop.Generator.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppInterop.Runtime">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppMakimono">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Il2CppMakimono.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Il2CppMakimono.dll</HintPath>
     </Reference>
     <Reference Include="Il2Cppmscorlib">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
     </Reference>
     <Reference Include="Il2CppSystem">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Il2CppSystem.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Il2CppSystem.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\MelonLoader.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\net6\MelonLoader.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Dependencies\Il2CppAssemblyGenerator\UnityDependencies\UnityEngine.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Dependencies\Il2CppAssemblyGenerator\UnityDependencies\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputModule">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.InputModule.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.InputModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
+      <HintPath>H:\SteamLibrary\steamapps\common\SaGaEmeraldBeyond\MelonLoader\Il2CppAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
 

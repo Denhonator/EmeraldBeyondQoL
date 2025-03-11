@@ -31,9 +31,9 @@ class PlayTime
     static string lastresult = "";
     private static void Postfix(int layerindex, ref string __result, ref Il2CppMakimono.AnimationDirector __instance)
     {
-        string layername = __instance.animationData.GetLayer(layerindex).name;
-        double animTime = __instance.GetAnimTime(layerindex);
-        double clipLen = __instance.GetClipLength(layername, __result);
+        //string layername = __instance.animationData.GetLayer(layerindex).name;
+        //double animTime = __instance.GetAnimTime(layerindex);
+        //double clipLen = __instance.GetClipLength(layername, __result);
 
         //__instance.SetTime(animTime);
 
@@ -95,6 +95,7 @@ class PlayTime
 //        MelonLogger.Msg($"UnitTransition: {unitname} playanimation: {playanimation}");
 //    }
 //}
+#if DEBUG
 [HarmonyLib.HarmonyPatch(typeof(BattleInspiration), "GetArtsRate", new Type[] { typeof(BtArtsDataTableLabel) })]
 class Inspiration
 {
@@ -129,6 +130,10 @@ class EventScriptFunc
     {
         Msg($"{data.funcName} {data.GetArgNumStr()} \nReturn: {returnVal.valInt} {returnVal.valString}");
         MyMod.cs = __instance;
+        if (data.funcName.Contains("Fade") || data.funcName.Contains("Actor") || data.funcName.Contains("Message"))
+        {
+            Cutscene.close = 1;
+        }
     }
 }
 
@@ -201,45 +206,74 @@ class BattleRankMonitor
     }
 }
 
+#endif
+
 [HarmonyLib.HarmonyPatch(typeof(PartsSpeechBubble), "Update")]
 class Cutscene
 {
     static Dictionary<string, int> timers = new Dictionary<string, int>();
+    static bool startedSkipping = false;
+    static float lastUpdate = 0;
+    public static int close = 0;
+    public static int stop = 0;
     static void Postfix(PartsSpeechBubble __instance)
     {
+        if (Time.unscaledTime - lastUpdate > 0.5f)
+        {
+            startedSkipping = false;
+            close = 0;
+        }
         if(Input.GetKeyDown(KeyCode.F6))
         {
             Msg($"Text: {__instance.m_text.text}\n" +
                 $"ActiveEnabled: {__instance.isActiveAndEnabled}\n" +
                 $"Open: {__instance.IsOpen}\n" +
-                $"OpenAnim: {__instance.m_isOpenAnimPlay}");
+                $"OpenAnim: {__instance.m_isOpenAnimPlay}\n" +
+                $"ActionCallback:");
+        }
+        if (close>0)
+        {
+            __instance.m_isOpenAnimPlay = false;
+            __instance.Close();
+            close -= 1;
         }
         bool heldDown = Il2CppMakimono.Input.GetButton(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel);
-        if (Il2CppMakimono.Input.GetButtonUp(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel))
-            timers.Clear();
-        if (__instance.m_isOpenAnimPlay && heldDown)
+        //if (Il2CppMakimono.Input.GetButtonUp(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel))
+        //    timers.Clear();
+        if (__instance.m_isOpenAnimPlay && (heldDown||startedSkipping) && stop==0)
         {
+            startedSkipping = true;
             if (!timers.ContainsKey(__instance.m_text.text))
             {
                 foreach (string key in timers.Keys)
                     timers[key] -= 1;
                 timers.Add(__instance.m_text.text, 2);
             }
+            else
+            {
+                timers[__instance.m_text.text] -= 1;
+            }
             if (timers[__instance.m_text.text] <= 0)
             {
                 timers.Remove(__instance.m_text.text);
                 __instance.m_isOpenAnimPlay = false;
+                __instance.Close();
             }
-            if (timers[__instance.m_text.text] <= 2)
+            if (timers.ContainsKey(__instance.m_text.text) && timers[__instance.m_text.text] <= 2)
             {
                 __instance.SetActive(__instance.m_isOpenAnimPlay);
                 __instance.m_onActionCallback.Invoke(__instance.m_position);
+                //__instance.m_isOpenAnimPlay = false;
                 if (!__instance.IsOpen)
                 {
                     __instance.Close();
                 }
             }
         }
+        else
+            timers.Clear();
+
+        lastUpdate = Time.unscaledTime;
     }
 }
 
@@ -317,6 +351,7 @@ namespace EmeraldBeyond
             {
                 SoundController.BGM.Resume(SoundController.BGM.ESuspendRequired.Start, true);
             }
+#if DEBUG
             else if (Input.GetKeyDown(KeyCode.F3))
             {
                 BattleRank br = Singlton<BattleRank>.Instance;
@@ -324,12 +359,6 @@ namespace EmeraldBeyond
                 $"\nEnemy: {br.m_EnemyRank}" +
                 $"\nPlayer: {br.m_PlayerRank}" +
                 $"\nPotential: {br.m_PotentialBattleRank}");
-            }
-            else if (Input.GetKeyDown(KeyCode.F4))
-            {
-                TitleControllerArgs args = new TitleControllerArgs(false);
-                //GameManager.GameModeArgsBase argsBase = new GameManager.GameModeArgsBase(GameManager.EGameMode.Title);
-                GameManager.ChangeGameMode(args);
             }
             else if (Input.GetKeyDown(KeyCode.F5))
             {
@@ -341,6 +370,13 @@ namespace EmeraldBeyond
                 {
                     Msg($"{key} = {cs.m_valLocalDict[key].valInt}{cs.m_valLocalDict[key].valBool}{cs.m_valLocalDict[key].valString}");
                 }
+            }
+#endif
+            else if (Input.GetKeyDown(KeyCode.F4))
+            {
+                TitleControllerArgs args = new TitleControllerArgs(false);
+                //GameManager.GameModeArgsBase argsBase = new GameManager.GameModeArgsBase(GameManager.EGameMode.Title);
+                GameManager.ChangeGameMode(args);
             }
             //if (Input.GetKeyDown(KeyCode.P))
             //{
