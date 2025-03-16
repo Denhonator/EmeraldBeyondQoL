@@ -242,7 +242,7 @@ class Cutscene
         //    timers.Clear();
         if (__instance.m_isOpenAnimPlay && (heldDown||startedSkipping) && stop==0)
         {
-            startedSkipping = true;
+            //startedSkipping = true;
             if (!timers.ContainsKey(__instance.m_text.text))
             {
                 foreach (string key in timers.Keys)
