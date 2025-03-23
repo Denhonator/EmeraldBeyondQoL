@@ -60,6 +60,30 @@ class FastCutscenes2
     }
 }
 
+[HarmonyLib.HarmonyPatch(typeof(CatheScript), "AftefFunc", new Type[] { typeof(CatheScript.FuncData), typeof(bool), typeof(CatheScript.Val) })]
+class EventScriptFunc
+{
+    static void Postfix(CatheScript.FuncData data, bool needRet, CatheScript.Val returnVal, CatheScript __instance)
+    {
+#if DEBUG
+        Msg($"{data.funcName} {data.GetArgNumStr()} \nReturn: {returnVal.valInt} {returnVal.valString}");
+#endif
+        MyMod.cs = __instance;
+        if(data.funcName.Contains("Sensei"))
+        {
+            MyMod.SetTurbo(false);
+        }
+        else if(data.funcName.Contains("Actor") || data.funcName.Contains("Message"))
+        {
+            MyMod.SetTurbo(true);
+        }
+        //if (data.funcName.Contains("Fade") || data.funcName.Contains("Actor") || data.funcName.Contains("Message"))
+        //{
+        //    Cutscene.close = 1;
+        //}
+    }
+}
+
 //[HarmonyLib.HarmonyPatch(typeof(Il2Cpp.ScreenCutSpeechBubble), "OpenSpeechBubble", new Type[] { typeof(Il2CppUI.CutScene.SpeechBubbleCreateInfo), typeof(bool), typeof(Il2CppSystem.Action) })]
 //class Bubble
 //{
@@ -102,20 +126,6 @@ class InspirationB
     static void Postfix(int InspirationPoint, float __result)
     {
         Msg($"InspPoint: {InspirationPoint} Prob: {__result}%");
-    }
-}
-
-[HarmonyLib.HarmonyPatch(typeof(CatheScript), "AftefFunc", new Type[] { typeof(CatheScript.FuncData), typeof(bool), typeof(CatheScript.Val) })]
-class EventScriptFunc
-{
-    static void Postfix(CatheScript.FuncData data, bool needRet, CatheScript.Val returnVal, CatheScript __instance)
-    {
-        Msg($"{data.funcName} {data.GetArgNumStr()} \nReturn: {returnVal.valInt} {returnVal.valString}");
-        MyMod.cs = __instance;
-        if (data.funcName.Contains("Fade") || data.funcName.Contains("Actor") || data.funcName.Contains("Message"))
-        {
-            Cutscene.close = 1;
-        }
     }
 }
 
@@ -206,7 +216,11 @@ class Cutscene3
     {
         if (__instance == null || __instance.m_CurrentState == Il2CppMakimono.DecideButton.StateKind.Inactive)
             return;
-        if (Time.timeScale > 3.0f && __instance.navigation.mode==Il2CppMakimono.ButtonNavigation.Mode.Automatic)
+        //Msg($"\nActionKind: {__instance.m_CurrentActionKind}\nAssignButton: {__instance.m_assignButton}\nSEType: {__instance.m_seType}");
+        if (__instance.m_assignButton.ToString().Contains("Tgm"))
+            MyMod.SetTurbo(false);
+
+        if (Time.timeScale >= 2.0f && __instance.m_assignButton == Il2CppMakimono.Input.Button.AnyKey)
             __instance.ClickDecide();
     }
 }
@@ -380,7 +394,7 @@ namespace EmeraldBeyond
             bool heldDown = turboSetting > 1 || Il2CppMakimono.Input.GetButton(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel);
             if (heldDown && allowTurbo)
             {
-                Time.timeScale = 4.0f;
+                Time.timeScale = 3.0f;
                 if (im != null)
                 {
                     im.SetActionRepeat(Il2CppMakimono.Input.Button.Decision, true, 0.0f, 0.01f);
@@ -388,12 +402,12 @@ namespace EmeraldBeyond
             }
             else if (turbo > 0)
             {
-                Time.timeScale = 4.0f;
+                Time.timeScale = 3.0f;
                 turbo -= 1;
             }
             else
             {
-                Time.timeScale = Time.timeScale == 4.0f ? 1.0f : Time.timeScale;
+                Time.timeScale = Time.timeScale == 3.0f ? 1.0f : Time.timeScale;
                 if(im!=null)
                     im.SetActionRepeat(Il2CppMakimono.Input.Button.D_Left, false, 0.0f, 0.01f);
             }
