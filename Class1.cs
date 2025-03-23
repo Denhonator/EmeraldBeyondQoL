@@ -2,18 +2,11 @@
 using Harmony;
 using Il2Cpp;
 using Il2CppBattle;
-using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Reflection;
-using Il2CppSystem.Text;
 using Il2CppUI.CutScene;
-using Il2CppUI.Title;
 using MelonLoader;
-using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using static Il2Cpp.LaunchManager;
 using static MelonLoader.MelonLogger;
 
 //[HarmonyLib.HarmonyPatch(typeof(Il2CppMakimono.UITime), "GetDeltaTime_UI", new Type[] { typeof(Il2CppMakimono.AnimationDirector.ETimeScaleMode) })]
@@ -31,50 +24,40 @@ class PlayTime
     static string lastresult = "";
     private static void Postfix(int layerindex, ref string __result, ref Il2CppMakimono.AnimationDirector __instance)
     {
-        //string layername = __instance.animationData.GetLayer(layerindex).name;
-        //double animTime = __instance.GetAnimTime(layerindex);
-        //double clipLen = __instance.GetClipLength(layername, __result);
-
-        //__instance.SetTime(animTime);
-
-        //MelonLogger.Msg($"state: {__result} animTime: {animTime} clipLen: {clipLen}");
-
-        //if (lastresult == __result) return;
-
-        //__instance.SetEndTime(layername, __result);
-
-        //Il2CppSystem.Collections.Generic.List<AnimationClip> results= new Il2CppSystem.Collections.Generic.List<AnimationClip>();
-        //__instance.GetAnimationClips(results);
-        //foreach(AnimationClip ac in results)
-        //{
-        //    Il2CppReferenceArray<AnimationEvent> events = ac.events;
-        //    for(int i = 0; i < events.Count; i++) 
-        //    {
-        //        MelonLogger.Msg($"eventtime: {events[i].time} clip: {ac.name} framerate: {ac.frameRate}");
-        //    }
-        //}
-
-        //for(int i=0;i<__instance.layerstatuslist.Count;i++)
-        //{
-        //    Il2CppMakimono.AnimationDirector.LayerStatusInfo l = __instance.layerstatuslist[i];
-        //    string callback = l.callback != null ? l.callback.method_info.Name : "";
-        //    MelonLogger.Msg($"playstatus: {l.Status} nextstate: {l.nextstate} callback: {callback}");
-        //}
-
-        //foreach (Il2CppMakimono.UIAnimation.State s in __instance.animationData.GetStateList(layerindex))
-        //{
-        //    if (s.name == __result && __instance.animationData.GetNextState(s) != null)
-        //    {
-        //        //MelonLogger.Msg($"State: {s.name} NextState: {__instance.animationData.GetNextState(s).name} Animation: {__instance.animationData.name}");
-        //        if (__result == lastresult)
-        //        {
-        //            __instance.SetState(layername, __instance.animationData.GetNextState(s).name);
-        //            return;
-        //        }
-        //    }
-        //}
-        //lastresult = __result;
         __instance.UpdateSpecifiedAnim();
+    }
+}
+
+[HarmonyLib.HarmonyPatch(typeof(AgentCutScene), "OnOpen", new Type[] {})]
+class FastCutscenes
+{
+    private static void Postfix(ref AgentCutScene __instance)
+    {
+        Msg("Cutscene open");
+        MyMod.SetTurbo(true);
+        if (!MyMod.acs.Contains(__instance))
+        {
+            MyMod.acs.Add(__instance);
+#if DEBUG
+            Msg($"Opened AgentCutScene {__instance.unitid}");
+#endif
+        }
+    }
+}
+
+[HarmonyLib.HarmonyPatch(typeof(AgentCutScene), "OnClose", new Type[] { })]
+class FastCutscenes2
+{
+    private static void Postfix(ref AgentCutScene __instance)
+    {
+        if (MyMod.acs.Contains(__instance))
+        {
+            MyMod.SetTurbo(false);
+            MyMod.acs.Remove(__instance);
+#if DEBUG
+            Msg($"Closed AgentCutScene {__instance.unitid}");
+#endif
+        }
     }
 }
 
@@ -208,6 +191,27 @@ class BattleRankMonitor
 
 #endif
 
+[HarmonyLib.HarmonyPatch(typeof(Il2CppMakimono.InputManager), "UpdateAction", new Type[] { })]
+class Cutscene2
+{
+    static void Postfix(Il2CppMakimono.InputManager __instance)
+    {
+        MyMod.im = __instance;
+    }
+}
+
+[HarmonyLib.HarmonyPatch(typeof(Il2CppMakimono.DecideButton), "Active", new Type[] { })]
+class Cutscene3
+{
+    static void Postfix(ref Il2CppMakimono.DecideButton __instance)
+    {
+        if (__instance == null || __instance.m_CurrentState == Il2CppMakimono.DecideButton.StateKind.Inactive)
+            return;
+        if (Time.timeScale > 3.0f && __instance.navigation.mode==Il2CppMakimono.ButtonNavigation.Mode.Automatic)
+            __instance.ClickDecide();
+    }
+}
+
 [HarmonyLib.HarmonyPatch(typeof(PartsSpeechBubble), "Update")]
 class Cutscene
 {
@@ -216,6 +220,7 @@ class Cutscene
     static float lastUpdate = 0;
     public static int close = 0;
     public static int stop = 0;
+    
     static void Postfix(PartsSpeechBubble __instance)
     {
         if (Time.unscaledTime - lastUpdate > 0.5f)
@@ -240,14 +245,14 @@ class Cutscene
         bool heldDown = Il2CppMakimono.Input.GetButton(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel);
         //if (Il2CppMakimono.Input.GetButtonUp(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel))
         //    timers.Clear();
-        if (__instance.m_isOpenAnimPlay && (heldDown||startedSkipping) && stop==0)
+        if (__instance.m_isOpenAnimPlay && (heldDown||MyMod.turboSetting>1||startedSkipping) && stop==0)
         {
             //startedSkipping = true;
             if (!timers.ContainsKey(__instance.m_text.text))
             {
                 foreach (string key in timers.Keys)
                     timers[key] -= 1;
-                timers.Add(__instance.m_text.text, 2);
+                timers.Add(__instance.m_text.text, 3);
             }
             else
             {
@@ -291,6 +296,7 @@ class Logos
 {
     static void Prefix(TitleController.LogoController.Each __instance)
     {
+        MyMod.SetTurbo(false);
         MelonLogger.Msg($"OnUpdate {__instance.m_step} {__instance.m_nMode}");
         __instance.m_step = TitleController.LogoController.Each.EStep.AllFinished;
         
@@ -335,13 +341,63 @@ namespace EmeraldBeyond
     public class MyMod : MelonMod
     {
         public static CatheScript cs;
+        UnitUICommon unitUICommon = null;
         List<Component> comps = new List<Component>();
         public static UnitCutScene? cutscene;
+        public static int turbo = 0;
+        public static bool allowTurbo = false;
+        public static List<AgentCutScene> acs = new List<AgentCutScene>();
+        public static Il2CppMakimono.InputManager im = null;
+        public static int turboSetting = 0;
+
+        public static void SetTurbo(bool turboset)
+        {
+            allowTurbo = (turboset && turboSetting > 0);
+        }
+
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        {
+            string path = Application.dataPath.Substring(0, Application.dataPath.LastIndexOf('/')+1);
+            string settingsfile = path + "QoLModSettings.txt";
+            if (!File.Exists(settingsfile))
+            {
+                File.WriteAllText(settingsfile, "turbo = 0");
+            }
+            else
+            {
+                string[] sets = File.ReadAllText(settingsfile).Split("\n", StringSplitOptions.TrimEntries);
+                foreach(string s in sets)
+                {
+                    if (s.Contains("turbo"))
+                    {
+                        turboSetting = int.Parse(s.Substring(s.IndexOf("=")+1));
+                        //Msg("Cutscene turbo set to " + (turboSetting == 0 ? "disallowed" : turboSetting == 1 ? "hold to use" : "automatic"));
+                    }
+                }
+            }
+        }
         public override void OnUpdate()
         {
-            //DOTween.timeScale = 10;
-            //DOTween.defaultTimeScaleIndependent = false;
-            //LoggerInstance.Msg(DOTween.timeScale.ToString());
+            bool heldDown = turboSetting > 1 || Il2CppMakimono.Input.GetButton(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel);
+            if (heldDown && allowTurbo)
+            {
+                Time.timeScale = 4.0f;
+                if (im != null)
+                {
+                    im.SetActionRepeat(Il2CppMakimono.Input.Button.Decision, true, 0.0f, 0.01f);
+                }
+            }
+            else if (turbo > 0)
+            {
+                Time.timeScale = 4.0f;
+                turbo -= 1;
+            }
+            else
+            {
+                Time.timeScale = Time.timeScale == 4.0f ? 1.0f : Time.timeScale;
+                if(im!=null)
+                    im.SetActionRepeat(Il2CppMakimono.Input.Button.D_Left, false, 0.0f, 0.01f);
+            }
 
             if(Input.GetKeyDown(KeyCode.F1))
             {
@@ -350,6 +406,12 @@ namespace EmeraldBeyond
             else if(Input.GetKeyDown(KeyCode.F2))
             {
                 SoundController.BGM.Resume(SoundController.BGM.ESuspendRequired.Start, true);
+            }
+            else if (Input.GetKeyDown(KeyCode.F4))
+            {
+                TitleControllerArgs args = new TitleControllerArgs(false);
+                //GameManager.GameModeArgsBase argsBase = new GameManager.GameModeArgsBase(GameManager.EGameMode.Title);
+                GameManager.ChangeGameMode(args);
             }
 #if DEBUG
             else if (Input.GetKeyDown(KeyCode.F3))
@@ -371,13 +433,20 @@ namespace EmeraldBeyond
                     Msg($"{key} = {cs.m_valLocalDict[key].valInt}{cs.m_valLocalDict[key].valBool}{cs.m_valLocalDict[key].valString}");
                 }
             }
-#endif
-            else if (Input.GetKeyDown(KeyCode.F4))
+            else if (Input.GetKeyDown(KeyCode.PageUp) && Time.timeScale >= 1.0f && Time.timeScale < 5.0f)
             {
-                TitleControllerArgs args = new TitleControllerArgs(false);
-                //GameManager.GameModeArgsBase argsBase = new GameManager.GameModeArgsBase(GameManager.EGameMode.Title);
-                GameManager.ChangeGameMode(args);
+                Time.timeScale += 1.0f;
             }
+            else if (Input.GetKeyDown(KeyCode.PageDown))
+            {
+                Time.timeScale = 1.0f;
+            }
+            else if (Input.GetKeyDown(KeyCode.F7))
+            {
+                foreach(AgentCutScene a in acs)
+                    Msg($"AgentCutScene ID: {a.unitid}\nCutscene open: {a.IsOpen}\nCutscene enabled: {a.Enable}");
+            }
+#endif
             //if (Input.GetKeyDown(KeyCode.P))
             //{
             //    comps.Clear();
