@@ -229,7 +229,6 @@ class Cutscene3
 class Cutscene
 {
     static Dictionary<string, int> timers = new Dictionary<string, int>();
-    static bool startedSkipping = false;
     static float lastUpdate = 0;
     public static int close = 0;
     public static int stop = 0;
@@ -238,7 +237,6 @@ class Cutscene
     {
         if (Time.unscaledTime - lastUpdate > 0.5f)
         {
-            startedSkipping = false;
             close = 0;
         }
         if(Input.GetKeyDown(KeyCode.F6))
@@ -256,9 +254,8 @@ class Cutscene
             close -= 1;
         }
         bool heldDown = Il2CppMakimono.Input.GetButton(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel);
-        //if (Il2CppMakimono.Input.GetButtonUp(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel))
-        //    timers.Clear();
-        if (__instance.m_isOpenAnimPlay && (heldDown||MyMod.turboSetting>1||startedSkipping) && stop==0)
+
+        if (__instance.m_isOpenAnimPlay && (heldDown^MyMod.turboSetting>1) && stop==0)
         {
             //startedSkipping = true;
             if (!timers.ContainsKey(__instance.m_text.text))
@@ -391,7 +388,7 @@ namespace EmeraldBeyond
         }
         public override void OnUpdate()
         {
-            bool heldDown = turboSetting > 1 || Il2CppMakimono.Input.GetButton(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel);
+            bool heldDown = turboSetting > 1 ^ Il2CppMakimono.Input.GetButton(Il2CppMakimono.Input.InputCategory.UI, Il2CppMakimono.Input.Button.Cancel);
             if (heldDown && allowTurbo)
             {
                 Time.timeScale = 3.0f;
