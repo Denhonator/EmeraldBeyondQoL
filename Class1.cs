@@ -33,7 +33,6 @@ class FastCutscenes
 {
     private static void Postfix(ref AgentCutScene __instance)
     {
-        Msg("Cutscene open");
         MyMod.SetTurbo(true);
         if (!MyMod.acs.Contains(__instance))
         {
