@@ -230,9 +230,9 @@ class Cutscene3
         if (__instance.m_assignButton.ToString().Contains("Tgm"))
             MyMod.SetTurbo(false);
 
-#if DEBUG
-        Msg($"\nActionKind: {__instance.m_CurrentActionKind}\nAssignButton: {__instance.m_assignButton}\nSEType: {__instance.m_seType}");
-#endif
+//#if DEBUG
+//        Msg($"\nActionKind: {__instance.m_CurrentActionKind}\nAssignButton: {__instance.m_assignButton}\nSEType: {__instance.m_seType}");
+//#endif
 
         if (Time.timeScale >= 2.0f && __instance.m_assignButton == Il2CppMakimono.Input.Button.AnyKey)
             __instance.ClickDecide();
