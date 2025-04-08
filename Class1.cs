@@ -6,6 +6,7 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Reflection;
 using Il2CppUI.CutScene;
 using MelonLoader;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using static MelonLoader.MelonLogger;
 
@@ -209,6 +210,15 @@ class Cutscene2
     }
 }
 
+[HarmonyLib.HarmonyPatch(typeof(Il2CppMakimono.SelectButton), "Focus", new Type[] { })]
+class ScreenDetection
+{
+    static void Postfix(ref Il2CppMakimono.SelectButton __instance)
+    {
+        MyMod.SetTurbo(false);
+    }
+}
+
 [HarmonyLib.HarmonyPatch(typeof(Il2CppMakimono.DecideButton), "Active", new Type[] { })]
 class Cutscene3
 {
@@ -216,9 +226,13 @@ class Cutscene3
     {
         if (__instance == null || __instance.m_CurrentState == Il2CppMakimono.DecideButton.StateKind.Inactive)
             return;
-        //Msg($"\nActionKind: {__instance.m_CurrentActionKind}\nAssignButton: {__instance.m_assignButton}\nSEType: {__instance.m_seType}");
+
         if (__instance.m_assignButton.ToString().Contains("Tgm"))
             MyMod.SetTurbo(false);
+
+#if DEBUG
+        Msg($"\nActionKind: {__instance.m_CurrentActionKind}\nAssignButton: {__instance.m_assignButton}\nSEType: {__instance.m_seType}");
+#endif
 
         if (Time.timeScale >= 2.0f && __instance.m_assignButton == Il2CppMakimono.Input.Button.AnyKey)
             __instance.ClickDecide();
@@ -392,10 +406,6 @@ namespace EmeraldBeyond
             if (heldDown && allowTurbo)
             {
                 Time.timeScale = 3.0f;
-                if (im != null)
-                {
-                    im.SetActionRepeat(Il2CppMakimono.Input.Button.Decision, true, 0.0f, 0.01f);
-                }
             }
             else if (turbo > 0)
             {
@@ -405,8 +415,6 @@ namespace EmeraldBeyond
             else
             {
                 Time.timeScale = Time.timeScale == 3.0f ? 1.0f : Time.timeScale;
-                if(im!=null)
-                    im.SetActionRepeat(Il2CppMakimono.Input.Button.D_Left, false, 0.0f, 0.01f);
             }
 
             if(Input.GetKeyDown(KeyCode.F1))
